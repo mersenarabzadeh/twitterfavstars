@@ -2,7 +2,7 @@ import tweepy
 import pandas as pd
 
 # twitter credentials
-client = tweepy.Client(*****, wait_on_rate_limit=True)
+client = tweepy.Client(bearer_token=bearer_token, wait_on_rate_limit=True)
 
 # Get a tweet information
 def crawl(tweetid, csvnumber):
