@@ -1,0 +1,13 @@
+import pandas as pd
+
+li = []
+
+for i in range(0,50):
+    filename = 'zard' + str(i) + '.csv'
+    df = pd.read_csv(filename, index_col=None, header=0)
+    li.append(df)
+
+frame = pd.concat(li, axis=0, ignore_index=True)
+
+print(frame.shape)
+frame.to_csv('allzard.csv')

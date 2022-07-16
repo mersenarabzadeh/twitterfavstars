@@ -1,0 +1,34 @@
+import tweepy
+import pandas as pd
+
+# Keys, tokens and secrets
+consumer_key = "*"
+consumer_secret = "*"
+access_token = "*"
+access_token_secret = "*"
+
+# Tweepy OAuthHandler
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+# Initializing Tweepy API
+api = tweepy.API(auth, wait_on_rate_limit=True)
+
+df = pd.read_csv('goodlist.csv')
+
+df['url'] = ''
+df['followers'] = ''
+df['followings'] = ''
+df['likes'] = ''
+df['create'] = ''
+df.reset_index()
+
+for x in range(len(df)):
+  user = api.get_user(screen_name=df.loc[x, 'username'])
+  df.loc[x, 'followers'] = user.followers_count
+  df.loc[x, 'followings'] = user.friends_count
+  df.loc[x, 'likes'] = user.favourites_count
+  df.loc[x, 'url'] =  str(user.entities)
+  df.loc[x, 'create'] =  str(user.created_at)
+
+df.to_csv('goodlist-extend.csv')

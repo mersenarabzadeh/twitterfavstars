@@ -1,0 +1,50 @@
+import tweepy
+import pandas as pd
+import datetime
+import pytz
+
+# Keys, tokens and secrets
+consumer_key = "c3i7xzGRsBOu2mRSr6gmtGycV"
+consumer_secret = "6qVOvD2tnoIN4T1GAGppAqzWfifSlyXmcZyHHnHjwZtCb1pU2T"
+access_token = "11790882-149vk7RlizLfYff2cMRZ9NO6r0QLwGQymDraxw5rn"
+access_token_secret = "lXnLPnIfetSIQydzWSoOzrRhT0u4MRCmj7Dk4YsP6caqN"
+
+# Tweepy OAuthHandler
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+# Initializing Tweepy API
+api = tweepy.API(auth, wait_on_rate_limit=True)
+
+
+df = pd.read_csv('badlist-extend.csv')
+df.reset_index()
+df['tweets'] = ''
+df['tweetsRT'] = ''
+
+
+startDate = pytz.utc.localize(datetime.datetime(2022, 4, 30, 0, 0, 0))
+endDate = pytz.utc.localize(datetime.datetime(2022, 5, 6, 0, 0, 0))
+
+  
+#include RT
+for x in range(len(df)):
+  z = 0
+  y = 0
+
+  tmpTweets = api.user_timeline(screen_name=df.loc[x, 'username'], include_rts=False)
+  for tweet in tmpTweets:
+      if tweet.created_at < endDate and tweet.created_at > startDate:
+          y = y + 1
+
+  while tmpTweets[-1].created_at > startDate:
+      tmpTweets = api.user_timeline(screen_name=df.loc[x, 'username'], max_id=tmpTweets[-1].id, include_rts=False)
+      for tweet in tmpTweets:
+          if tweet.created_at < endDate and tweet.created_at > startDate:
+              z = z + 1
+  print(df.loc[x, 'username'])
+  print(z + y)
+  df.loc[x, 'tweets'] = z + y
+
+
+df.to_csv('badlist-extend-tweets5-rt.csv')
